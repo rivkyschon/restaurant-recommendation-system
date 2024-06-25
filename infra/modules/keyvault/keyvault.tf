@@ -34,11 +34,12 @@ resource "azurerm_key_vault" "kv" {
 
   tags = var.tags
 
-  network_acls {
-    default_action             = "Deny"
-    bypass                     = "AzureServices"
-    virtual_network_subnet_ids = [var.subnet_id]
-  }
+  # network_acls {
+  #   default_action             = "Deny"
+  #   bypass                     = "AzureServices"
+  #   ip_rules                   = ["192.117.165.7"]
+  #   virtual_network_subnet_ids = [var.subnet_id]
+  # }
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -53,8 +54,6 @@ resource "azurerm_key_vault_access_policy" "app" {
 
   key_permissions         = ["Get", "List", "Create", "Update", "Delete", "Import", "Backup", "Restore", "Recover", "Purge", "GetRotationPolicy"]
   secret_permissions      = ["Get", "List", "Set", "Delete", "Backup", "Restore", "Recover", "Purge"]
-  certificate_permissions = ["Get", "List", "Delete", "Create", "Import", "Update", "ManageContacts", "GetIssuers", "ListIssuers", "SetIssuers", "DeleteIssuers", "ManageIssuers"]
-
 }
 
 resource "azurerm_key_vault_access_policy" "user" {
@@ -65,7 +64,6 @@ resource "azurerm_key_vault_access_policy" "user" {
 
   secret_permissions = ["Get", "Set", "List", "Delete", "Purge"]
   key_permissions    = ["Get", "GetRotationPolicy", "List", "Create", "Update", "Delete", "Import", "Backup", "Restore", "Recover", "Purge"]
-
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -78,6 +76,7 @@ resource "azurerm_key_vault_secret" "secrets" {
   value        = var.secrets[count.index].value
   key_vault_id = azurerm_key_vault.kv.id
   depends_on = [
+    azurerm_key_vault.kv,
     azurerm_key_vault_access_policy.user,
     azurerm_key_vault_access_policy.app
   ]
@@ -101,6 +100,7 @@ resource "azurerm_key_vault_key" "encryption_key" {
   key_opts     = ["decrypt", "encrypt", "sign", "unwrapKey", "verify", "wrapKey"]
 
   depends_on = [
+    azurerm_key_vault.kv,
     azurerm_key_vault_access_policy.user,
     azurerm_key_vault_access_policy.app
   ]

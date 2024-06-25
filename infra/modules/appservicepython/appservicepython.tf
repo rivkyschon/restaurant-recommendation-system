@@ -35,8 +35,8 @@ resource "azurerm_linux_web_app" "app" {
     ftps_state        = "FtpsOnly"
     app_command_line  = var.app_command_line
     application_stack {
-      docker_image_name   = "nginx:latest"
-      docker_registry_url = "https://index.docker.io"
+      docker_image_name   = var.docker_image_name
+      docker_registry_url = var.docker_registry_url
     }
     health_check_path = var.health_check_path
   }

@@ -72,3 +72,13 @@ variable "subnet_id" {
   description = "The ID of the subnet for the private endpoint"
   type        = string
 }
+
+variable "docker_image_name" {
+  description = "The name of the Docker image to use."
+  type        = string
+}
+
+variable "docker_registry_url" {
+  description = "The URL of the Docker registry."
+  type        = string
+}

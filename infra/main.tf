@@ -157,7 +157,9 @@ module "appservicepython" {
   rg_name        = azurerm_resource_group.rg.name
   resource_token = local.resource_token
   subnet_id      = azurerm_subnet.app_service_subnet.id
-
+  docker_image_name = var.docker_image_name
+  docker_registry_url = var.docker_registry_url
+  
   tags               = merge(local.tags, { "azd-service-name" : "api" })
   service_name       = "api"
   appservice_plan_id = module.appserviceplan.APPSERVICE_PLAN_ID

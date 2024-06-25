@@ -14,14 +14,18 @@ variable "principal_id" {
   default     = ""
 }
 
-variable "useAPIM" {
-  description = "Flag to use Azure API Management to mediate the calls between the Web frontend and the backend API."
-  type        = bool
-  default     = false
+variable "docker_registry_url" {
+  description = "The URL of the Docker registry."
+  type        = string
 }
 
-variable "apimSKU" {
-  description = "Azure API Management SKU. Only used if useAPIM is true."
-  type       = string
-  default = "Consumption"
+variable "docker_image_tag" {
+  description = "The tag of the docker image to be deployed"
+  type        = string
+  default     = "latest"
+}
+
+variable "docker_image_name" {
+  description = "The name of the docker image to be deployed"
+  type        = string
 }
