@@ -1,7 +1,3 @@
-# Docker
-# Build and push an image to Azure Container Registry
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
 - main
 
@@ -10,16 +6,47 @@ resources:
 
 variables:
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '80c447ef-56ee-4df6-bf75-ff5d9f222f0f'
-  imageRepository: 'rivkyschonrestaurantrecommendationsystem'
-  containerRegistry: 'restaurantsystemregistry.azurecr.io'
+  dockerRegistryServiceConnection: 'dc68a71f-99c1-487b-be67-ec8e8dc8594b'
+  imageRepository: 'restaurantrecommendationsys'
+  containerRegistry: 'crmtg2odlmndmzm.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/api/Dockerfile'
   tag: '$(Build.BuildId)'
-
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
 stages:
+  - stage: Lint
+    displayName: Format and lint code
+    jobs:
+      - job: Linting
+        steps:
+        - script: |
+            python3 -m pip install black
+            python3 -m pip install pylint
+          displayName: "Install dependencies"  
+
+        - script: |
+            # app is the folder in which the application code resides
+            python3 -m black ./api/app
+          displayName: "Apply black code formatting"
+
+        - script: |
+            python3 -m pylint ./api/app --recursive=true --exit-zero
+          displayName: "Static code analysis with pylint"
+  
+  # - stage: Test
+  #   displayName: Unit test
+  #   jobs:
+  #     - job: Test
+  #       steps:
+  #       - script: |
+  #           python3 -m pip install -r requirements.txt
+  #           python3 -m pip install pytest-azurepipelines
+  #         displayName: "Install dependencies"
+        
+  #       - script: |
+  #           python3 -m pytest -v -s --junitxml=unittest/junit.xml --cov=. --cov-report=term-missing --cov-report=xml
+ 
 - stage: Build
   displayName: Build and push stage
   jobs:
