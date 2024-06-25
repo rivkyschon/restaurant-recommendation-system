@@ -12,8 +12,9 @@ terraform {
 }
 
 data "azurerm_client_config" "current" {}
+
 # ------------------------------------------------------------------------------------------------------
-# DEPLOY AZURE KEYVAULT
+# Deploy Azure Key Vault
 # ------------------------------------------------------------------------------------------------------
 resource "azurecaf_name" "kv_name" {
   name          = var.resource_token
@@ -33,18 +34,20 @@ resource "azurerm_key_vault" "kv" {
   tags = var.tags
 }
 
+# ------------------------------------------------------------------------------------------------------
+# Deploy access policies to Key Vault
+# ------------------------------------------------------------------------------------------------------
+
 resource "azurerm_key_vault_access_policy" "app" {
   count        = length(var.access_policy_object_ids)
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.access_policy_object_ids[count.index]
 
-  secret_permissions = [
-    "Get",
-    "Set",
-    "List",
-    "Delete",
-  ]
+  key_permissions         = ["Get", "List", "Create", "Update", "Delete", "Import", "Backup", "Restore", "Recover", "Purge", "GetRotationPolicy"]
+  secret_permissions      = ["Get", "List", "Set", "Delete", "Backup", "Restore", "Recover", "Purge"]
+  certificate_permissions = ["Get", "List", "Delete", "Create", "Import", "Update", "ManageContacts", "GetIssuers", "ListIssuers", "SetIssuers", "DeleteIssuers", "ManageIssuers"]
+
 }
 
 resource "azurerm_key_vault_access_policy" "user" {
@@ -53,14 +56,14 @@ resource "azurerm_key_vault_access_policy" "user" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.principal_id
 
-  secret_permissions = [
-    "Get",
-    "Set",
-    "List",
-    "Delete",
-    "Purge"
-  ]
+  secret_permissions = [ "Get", "Set", "List", "Delete", "Purge" ]
+  key_permissions = ["Get","GetRotationPolicy", "List", "Create", "Update", "Delete", "Import", "Backup", "Restore", "Recover", "Purge"]
+
 }
+
+# ------------------------------------------------------------------------------------------------------
+# Deploy secrets to Key Vault
+# ------------------------------------------------------------------------------------------------------
 
 resource "azurerm_key_vault_secret" "secrets" {
   count        = length(var.secrets)
@@ -73,3 +76,26 @@ resource "azurerm_key_vault_secret" "secrets" {
   ]
 }
 
+# ------------------------------------------------------------------------------------------------------
+# Deploy encryption key to Key Vault
+# ------------------------------------------------------------------------------------------------------
+resource "azurecaf_name" "key_name" {
+  name          = "${var.resource_token}-key"
+  resource_type = "azurerm_key_vault_key"
+  random_length = 0
+  clean_input   = true
+}
+
+resource "azurerm_key_vault_key" "encryption_key" {
+  name         = azurecaf_name.key_name.result
+  key_vault_id = azurerm_key_vault.kv.id
+  key_type     = "RSA"
+  key_size     = 2048
+  key_opts     = ["decrypt", "encrypt", "sign", "unwrapKey", "verify", "wrapKey"]
+
+  depends_on = [
+    azurerm_key_vault_access_policy.user,
+    azurerm_key_vault_access_policy.app
+  ]
+  # Todo: Key expiration policies (set dates or configure rotation)
+}

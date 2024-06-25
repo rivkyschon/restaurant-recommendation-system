@@ -115,42 +115,54 @@ module "cosmos" {
   subnet_id      = azurerm_subnet.cosmos_subnet.id
 }
 
+# ------------------------------------------------------------------------------------------------------
+# Deploy container registry
+# ------------------------------------------------------------------------------------------------------
+module "containerregistry" {
+  source = "./modules/containerregistry"
+  location       = var.location
+  rg_name        = azurerm_resource_group.rg.name
+  resource_token = local.resource_token
+  key_vault_id   = module.keyvault.AZURE_KEY_VAULT_ID
+}
 
-# # ------------------------------------------------------------------------------------------------------
-# # Deploy app service plan
-# # ------------------------------------------------------------------------------------------------------
-# module "appserviceplan" {
-#   source         = "./modules/appserviceplan"
-#   location       = var.location
-#   rg_name        = azurerm_resource_group.rg.name
-#   tags           = local.tags
-#   resource_token = local.resource_token
-#   sku_name       = "B3"
-# }
 
-# # ------------------------------------------------------------------------------------------------------
-# # Deploy app service api
-# # ------------------------------------------------------------------------------------------------------
-# module "appservicepython" {
-#   source         = "./modules/appservicepython"
-#   location       = var.location
-#   rg_name        = azurerm_resource_group.rg.name
-#   resource_token = local.resource_token
 
-#   tags               = merge(local.tags, { "azd-service-name" : "api" })
-#   service_name       = "api"
-#   appservice_plan_id = module.appserviceplan.APPSERVICE_PLAN_ID
-#   app_settings = {
-#     "AZURE_COSMOS_CONNECTION_STRING_KEY"    = local.cosmos_connection_string_key
-#     "AZURE_COSMOS_DATABASE_NAME"            = module.cosmos.AZURE_COSMOS_DATABASE_NAME
-#     "SCM_DO_BUILD_DURING_DEPLOYMENT"        = "true"
-#     "AZURE_KEY_VAULT_ENDPOINT"              = module.keyvault.AZURE_KEY_VAULT_ENDPOINT
-#     "APPLICATIONINSIGHTS_CONNECTION_STRING" = module.applicationinsights.APPLICATIONINSIGHTS_CONNECTION_STRING
-#   }
+# ------------------------------------------------------------------------------------------------------
+# Deploy app service plan
+# ------------------------------------------------------------------------------------------------------
+module "appserviceplan" {
+  source         = "./modules/appserviceplan"
+  location       = var.location
+  rg_name        = azurerm_resource_group.rg.name
+  tags           = local.tags
+  resource_token = local.resource_token
+  sku_name       = "B3"
+}
 
-#   app_command_line = local.api_command_line
-#   # identity = [{
-#   #   type = "SystemAssigned"
-#   # }]
-# }
+# ------------------------------------------------------------------------------------------------------
+# Deploy app service api
+# ------------------------------------------------------------------------------------------------------
+module "appservicepython" {
+  source         = "./modules/appservicepython"
+  location       = var.location
+  rg_name        = azurerm_resource_group.rg.name
+  resource_token = local.resource_token
+
+  tags               = merge(local.tags, { "azd-service-name" : "api" })
+  service_name       = "api"
+  appservice_plan_id = module.appserviceplan.APPSERVICE_PLAN_ID
+  app_settings = {
+    "AZURE_COSMOS_CONNECTION_STRING_KEY"    = local.cosmos_connection_string_key
+    "AZURE_COSMOS_DATABASE_NAME"            = module.cosmos.AZURE_COSMOS_DATABASE_NAME
+    "SCM_DO_BUILD_DURING_DEPLOYMENT"        = "true"
+    "AZURE_KEY_VAULT_ENDPOINT"              = module.keyvault.AZURE_KEY_VAULT_ENDPOINT
+    "APPLICATIONINSIGHTS_CONNECTION_STRING" = module.applicationinsights.APPLICATIONINSIGHTS_CONNECTION_STRING
+  }
+
+  app_command_line = local.api_command_line
+  # identity = [{
+  #   type = "SystemAssigned"
+  # }]
+}
 

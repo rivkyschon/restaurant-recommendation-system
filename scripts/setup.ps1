@@ -120,3 +120,13 @@ try {
 }
 
 Log-Message "Azure infrastructure setup script completed"
+
+
+# register the following :
+# microsoft.insights
+# Microsoft.OperationalInsights
+# microsoft.web
+# microsoft.documentdb
+# microsoft.network
+# microsoft.ContainerRegistry
+# microsoft.keyvault

@@ -102,24 +102,24 @@ resource "azurerm_private_endpoint" "cosmosdb_private_endpoint" {
 
 }
 
-# # Private DNS Zone
-# resource "azurerm_private_dns_zone" "cosmos_db_private_dns_zone" {
-#   name                = "privatelink.documents.azure.com"
-#   resource_group_name = var.rg_name
-# }
+# Private DNS Zone
+resource "azurerm_private_dns_zone" "cosmos_db_private_dns_zone" {
+  name                = "privatelink.documents.azure.com"
+  resource_group_name = var.rg_name
+}
 
-# resource "azurerm_private_dns_zone_virtual_network_link" "cosmos_db_private_dns_zone_link" {
-#   name                  = "cosmos-db-private-dns-zone-link"
-#   resource_group_name   = var.rg_name
-#   private_dns_zone_name = azurerm_private_dns_zone.cosmos_db_private_dns_zone.name
-#   virtual_network_id    = var.vnet_id 
-# }
+resource "azurerm_private_dns_zone_virtual_network_link" "cosmos_db_private_dns_zone_link" {
+  name                  = "cosmos-db-private-dns-zone-link"
+  resource_group_name   = var.rg_name
+  private_dns_zone_name = azurerm_private_dns_zone.cosmos_db_private_dns_zone.name
+  virtual_network_id    = var.vnet_id 
+}
 
-# # DNS Configuration for the Private Endpoint
-# resource "azurerm_private_dns_a_record" "cosmos_db_private_dns_record" {
-#   name                = azurerm_cosmosdb_account.db.name
-#   zone_name           = azurerm_private_dns_zone.cosmos_db_private_dns_zone.name
-#   resource_group_name = var.rg_name
-#   ttl                 = 300
-#   records             = [azurerm_private_endpoint.cosmosdb_private_endpoint.private_service_connection[0].private_ip_address]
-# }
+# DNS Configuration for the Private Endpoint
+resource "azurerm_private_dns_a_record" "cosmos_db_private_dns_record" {
+  name                = azurerm_cosmosdb_account.db.name
+  zone_name           = azurerm_private_dns_zone.cosmos_db_private_dns_zone.name
+  resource_group_name = var.rg_name
+  ttl                 = 300
+  records             = [azurerm_private_endpoint.cosmosdb_private_endpoint.private_service_connection[0].private_ip_address]
+}
