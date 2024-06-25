@@ -2,9 +2,7 @@ trigger:
   branches:
     include:
     - main
-    exclude:
-    - feature_branches
-
+    
 pool:
   vmImage: 'ubuntu-latest'
 
@@ -12,7 +10,7 @@ variables:
   - name: tag
     value: '$(Build.BuildNumber)'
   - name: ImageName
-    value: "demo Image"
+    value: "service-app-image"
   - name: python.version
     value: '3.8'
 
@@ -62,7 +60,7 @@ stages:
            azureSubscriptionEndpoint: 'Service connection name'
            azureContainerRegistry: '<<democontainer-DEV.azurecr.io>>'
            command: 'Build an Image'
-           dockerFile: '$(System.DefaultWorkingDirectory)/Dockerfile'
+           dockerFile: '**/Dockerfile'
            tags: |
              latest
              $(Build.BuildId)

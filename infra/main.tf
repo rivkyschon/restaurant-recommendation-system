@@ -131,7 +131,7 @@ module "cosmos" {
 # # ------------------------------------------------------------------------------------------------------
 # # Deploy app service api
 # # ------------------------------------------------------------------------------------------------------
-# module "api" {
+# module "appservicepython" {
 #   source         = "./modules/appservicepython"
 #   location       = var.location
 #   rg_name        = azurerm_resource_group.rg.name
