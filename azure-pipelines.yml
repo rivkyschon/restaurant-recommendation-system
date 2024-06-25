@@ -44,17 +44,31 @@ stages:
     jobs:
       - job: Test
         steps:
-        - script: |
-            cd api
-            python3 -m pip install -r requirements.txt
-            python3 -m pip install pytest-azurepipelines
-          displayName: "Install dependencies"
-        
-        - script: |
-            cd api
-            python3 -m pytest tests -v -s --junitxml=unittest/junit.xml --cov=app --cov-report=term-missing --cov-report=xml
-          displayName: "Run unit tests"
-          
+          - script: |
+              echo "Setting up Python environment..."
+              python -m venv venv
+              source venv/bin/activate
+              pip install -r $(Build.SourcesDirectory)/api/requirements.txt
+              pip install pytest
+              echo "Running tests..."
+              pytest $(Build.SourcesDirectory)/api/tests
+            displayName: Run unit tests
+
+  - stage: Scan
+    displayName: Vulnerability scanning stage
+    dependsOn: Build
+    jobs:
+      - job: Scan
+        displayName: Scan image for vulnerabilities
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - script: |
+              echo "Scanning image for vulnerabilities..."
+              docker build -t $(imageRepository):$(tag) -f $(dockerfilePath) .
+              docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(Build.SourcesDirectory):/root/.cache/ aquasec/trivy:latest image $(imageRepository):$(tag)
+            displayName: Scan image
+
   - stage: Build
     displayName: Build and push stage
     jobs:
