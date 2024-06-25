@@ -16,7 +16,7 @@ terraform.tfvars.json
 
 # Ignore directories that create dynamically
 infra/*terraform/
-scripts/
+# scripts/
 # modules/
 
 # Byte-compiled / optimized / DLL files
