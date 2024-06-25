@@ -3,10 +3,10 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
-- main
+  - main
 
 resources:
-- repo: self
+  - repo: self
 
 variables:
   # Container registry service connection established during pipeline creation
@@ -20,39 +20,55 @@ variables:
   vmImageName: 'ubuntu-latest'
 
 stages:
-- stage: Lint
-  displayName: Format and lint code
-  jobs:
-  - job: Linting
-    steps:
-    - script: |
-        python3 -m pip install black
-        python3 -m pip install pylint
-      displayName: "Install dependencies"  
+  - stage: Lint
+    displayName: Format and lint code
+    jobs:
+      - job: Linting
+        steps:
+          - script: |
+              python3 -m pip install black
+              python3 -m pip install pylint
+            displayName: 'Install dependencies'
 
-    - script: |
-        # app is the folder in which the application code resides
-        python3 -m black ./api/app
-      displayName: "Apply black code formatting"
+          - script: |
+              # app is the folder in which the application code resides
+              python3 -m black ./api/app
+            displayName: 'Apply black code formatting'
 
-    - script: |
-        python3 -m pylint ./api/app --recursive=true --exit-zero
-      displayName: "Static code analysis with pylint"
+          - script: |
+              python3 -m pylint ./api/app --recursive=true --exit-zero
+            displayName: 'Static code analysis with pylint'
 
-- stage: Build
-  displayName: Build and push stage
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      displayName: Build and push an image to container registry
-      inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: |
-          $(tag)
+  - stage: Test
+    displayName: Unit test
+    jobs:
+      - job: Test
+        steps:
+        - script: |
+            cd api
+            python3 -m pip install -r requirements.txt
+            python3 -m pip install pytest-azurepipelines
+          displayName: "Install dependencies"
+        
+        - script: |
+            cd api
+            python3 -m pytest tests -v -s --junitxml=unittest/junit.xml --cov=app --cov-report=term-missing --cov-report=xml
+          displayName: "Run unit tests"
+          
+  - stage: Build
+    displayName: Build and push stage
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - task: Docker@2
+            displayName: Build and push an image to container registry
+            inputs:
+              command: buildAndPush
+              repository: $(imageRepository)
+              dockerfile: $(dockerfilePath)
+              containerRegistry: $(dockerRegistryServiceConnection)
+              tags: |
+                $(tag)
