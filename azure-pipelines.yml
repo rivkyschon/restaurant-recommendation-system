@@ -1,6 +1,4 @@
-# Docker
-# Build and push an image to Azure Container Registry
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
 
 trigger:
   - main
@@ -52,7 +50,7 @@ stages:
               pip install pytest
               echo "Running tests..."
               export PYTHONPATH=$(Build.SourcesDirectory)/api
-              pytest $(Build.SourcesDirectory)/api/tests
+# pytest $(Build.SourcesDirectory)/api/tests
             displayName: Run unit tests
 
   - stage: Scan

@@ -67,3 +67,8 @@ variable "health_check_path" {
   type        = string
   default     = ""
 }
+
+variable "subnet_id" {
+  description = "The ID of the subnet for the private endpoint"
+  type        = string
+}
