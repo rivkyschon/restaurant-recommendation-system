@@ -33,34 +33,21 @@ stages:
         - script: |
             python3 -m pylint ./api/app --recursive=true --exit-zero
           displayName: "Static code analysis with pylint"
-  
-  # - stage: Test
-  #   displayName: Unit test
-  #   jobs:
-  #     - job: Test
-  #       steps:
-  #       - script: |
-  #           python3 -m pip install -r requirements.txt
-  #           python3 -m pip install pytest-azurepipelines
-  #         displayName: "Install dependencies"
-        
-  #       - script: |
-  #           python3 -m pytest -v -s --junitxml=unittest/junit.xml --cov=. --cov-report=term-missing --cov-report=xml
- 
-- stage: Build
-  displayName: Build and push stage
-  jobs:
-  - job: Build
-    displayName: Build
+
+  - stage: Build
+    displayName: Build and push stage
+    jobs:
+    - job: Build
+      displayName: Build
     pool:
       vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      displayName: Build and push an image to container registry
-      inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: |
-          $(tag)
+      steps:
+      - task: Docker@2
+        displayName: Build and push an image to container registry
+        inputs:
+          command: buildAndPush
+          repository: $(imageRepository)
+          dockerfile: $(dockerfilePath)
+          containerRegistry: $(dockerRegistryServiceConnection)
+          tags: |
+            $(tag)
