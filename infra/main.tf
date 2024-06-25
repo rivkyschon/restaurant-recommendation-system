@@ -56,8 +56,7 @@ resource "azurerm_subnet" "cosmos_subnet" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = ["10.0.2.0/24"]
-  service_endpoints    = ["Microsoft.AzureCosmosDB"] # Allow access to Cosmos DB
-
+  service_endpoints    = ["Microsoft.AzureCosmosDB"]
 }
 
 resource "azurerm_subnet" "keyvault_subnet" {
@@ -65,7 +64,7 @@ resource "azurerm_subnet" "keyvault_subnet" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = ["10.0.3.0/24"]
-  service_endpoints    = ["Microsoft.KeyVault"] # Optional for private endpoints
+  service_endpoints    = ["Microsoft.KeyVault"]
 }
 
 # ------------------------------------------------------------------------------------------------------
