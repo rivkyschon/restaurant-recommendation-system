@@ -56,7 +56,6 @@ stages:
 
   - stage: Scan
     displayName: Vulnerability scanning stage
-    dependsOn: Build
     jobs:
       - job: Scan
         displayName: Scan image for vulnerabilities
