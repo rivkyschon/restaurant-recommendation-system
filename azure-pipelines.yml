@@ -51,6 +51,7 @@ stages:
               pip install -r $(Build.SourcesDirectory)/api/requirements.txt
               pip install pytest
               echo "Running tests..."
+              export PYTHONPATH=$(Build.SourcesDirectory)/api
               pytest $(Build.SourcesDirectory)/api/tests
             displayName: Run unit tests
 
