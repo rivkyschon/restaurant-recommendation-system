@@ -20,6 +20,25 @@ variables:
   vmImageName: 'ubuntu-latest'
 
 stages:
+- stage: Lint
+  displayName: Format and lint code
+  jobs:
+  - job: Linting
+    steps:
+    - script: |
+        python3 -m pip install black
+        python3 -m pip install pylint
+      displayName: "Install dependencies"  
+
+    - script: |
+        # app is the folder in which the application code resides
+        python3 -m black ./api/app
+      displayName: "Apply black code formatting"
+
+    - script: |
+        python3 -m pylint ./api/app --recursive=true --exit-zero
+      displayName: "Static code analysis with pylint"
+
 - stage: Build
   displayName: Build and push stage
   jobs:
