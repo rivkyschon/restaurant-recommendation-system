@@ -24,14 +24,21 @@ resource "azurecaf_name" "kv_name" {
 }
 
 resource "azurerm_key_vault" "kv" {
-  name                     = azurecaf_name.kv_name.result
-  location                 = var.location
-  resource_group_name      = var.rg_name
-  tenant_id                = data.azurerm_client_config.current.tenant_id
-  purge_protection_enabled = false
-  sku_name                 = "standard"
+  name                        = azurecaf_name.kv_name.result
+  location                    = var.location
+  resource_group_name         = var.rg_name
+  tenant_id                   = data.azurerm_client_config.current.tenant_id
+  purge_protection_enabled    = false
+  sku_name                    = "standard"
+  enabled_for_disk_encryption = true
 
   tags = var.tags
+
+  network_acls {
+    default_action             = "Deny"
+    bypass                     = "AzureServices"
+    virtual_network_subnet_ids = [var.subnet_id]
+  }
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -56,8 +63,8 @@ resource "azurerm_key_vault_access_policy" "user" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.principal_id
 
-  secret_permissions = [ "Get", "Set", "List", "Delete", "Purge" ]
-  key_permissions = ["Get","GetRotationPolicy", "List", "Create", "Update", "Delete", "Import", "Backup", "Restore", "Recover", "Purge"]
+  secret_permissions = ["Get", "Set", "List", "Delete", "Purge"]
+  key_permissions    = ["Get", "GetRotationPolicy", "List", "Create", "Update", "Delete", "Import", "Backup", "Restore", "Recover", "Purge"]
 
 }
 

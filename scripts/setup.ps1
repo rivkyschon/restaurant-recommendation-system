@@ -20,7 +20,8 @@ try {
     Log-Message "Logging in to Azure..."
     az login | Out-Null
     Log-Message "Successfully logged in to Azure"
-} catch {
+}
+catch {
     Log-Message "Error logging in to Azure: $_"
     exit 1
 }
@@ -50,7 +51,8 @@ try {
     Log-Message "Retrieving current subscription ID..."
     $subscriptionId = az account show --query "id" -o tsv
     Log-Message "Current subscription ID: $subscriptionId"
-} catch {
+}
+catch {
     Log-Message "Error retrieving subscription ID: $_"
     exit 1
 }
@@ -61,7 +63,8 @@ try {
     $resourceToken = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$environmentName$location$subscriptionId"))
     $resourceToken = $resourceToken.Substring(0, 13).ToLower().Replace("[^A-Za-z0-9_]", "")
     Log-Message "Resource token: $resourceToken"
-} catch {
+}
+catch {
     Log-Message "Error generating resource token: $_"
     exit 1
 }
@@ -76,15 +79,9 @@ try {
 
     # Create the content for the .tfvars file
     $tfvarsContent = @"
-location = "$location"
-environment_name = "$environmentName"
-principal_id = "$principalId"
-access_policy_object_ids = [@($accessPolicyObjectIds | ForEach-Object { '"$($_)"' })]
-tags = {
-    azd-env-name = "$environmentName"
-}
-resource_token = "$resourceToken"
-cosmos_connection_string_key = "$cosmosConnectionStringKey"
+    location = "$location"
+    environment_name = "$environmentName"
+    principal_id = "$principalId"
 "@
 
     # Save the variables to a .tfvars file in the infra directory
@@ -92,7 +89,8 @@ cosmos_connection_string_key = "$cosmosConnectionStringKey"
     $tfvarsContent | Out-File -FilePath $tfvarsPath -Encoding utf8
 
     Log-Message "Terraform variables file created at $tfvarsPath"
-} catch {
+}
+catch {
     Log-Message "Error creating Terraform variables file: $_"
     exit 1
 }
@@ -105,7 +103,8 @@ try {
     Log-Message "Initializing Terraform..."
     terraform init | Out-File -FilePath "..\scripts\$logFilePath" -Append -Encoding utf8
     Log-Message "Terraform initialized successfully"
-} catch {
+}
+catch {
     Log-Message "Error initializing Terraform: $_"
     exit 1
 }
@@ -114,19 +113,10 @@ try {
     Log-Message "Applying Terraform configuration..."
     terraform apply -var-file=$tfvarsPath -auto-approve | Out-File -FilePath "..\scripts\$logFilePath" -Append -Encoding utf8
     Log-Message "Terraform configuration applied successfully"
-} catch {
+}
+catch {
     Log-Message "Error applying Terraform configuration: $_"
     exit 1
 }
 
 Log-Message "Azure infrastructure setup script completed"
-
-
-# register the following :
-# microsoft.insights
-# Microsoft.OperationalInsights
-# microsoft.web
-# microsoft.documentdb
-# microsoft.network
-# microsoft.ContainerRegistry
-# microsoft.keyvault

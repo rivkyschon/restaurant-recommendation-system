@@ -39,3 +39,8 @@ variable "secrets" {
   }))
   sensitive = true
 }
+
+variable "subnet_id" {
+  description = "The ID of the subnet for the private endpoint"
+  type        = string
+}

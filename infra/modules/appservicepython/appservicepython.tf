@@ -10,18 +10,19 @@ terraform {
     }
   }
 }
+
 # ------------------------------------------------------------------------------------------------------
-# Deploy app service web app
+# Deploy app service python app
 # ------------------------------------------------------------------------------------------------------
-resource "azurecaf_name" "web_name" {
+resource "azurecaf_name" "app_name" {
   name          = "${var.service_name}-${var.resource_token}"
   resource_type = "azurerm_app_service"
   random_length = 0
   clean_input   = true
 }
 
-resource "azurerm_linux_web_app" "web" {
-  name                = azurecaf_name.web_name.result
+resource "azurerm_linux_web_app" "app" {
+  name                = azurecaf_name.app_name.result
   location            = var.location
   resource_group_name = var.rg_name
   service_plan_id     = var.appservice_plan_id
@@ -34,7 +35,8 @@ resource "azurerm_linux_web_app" "web" {
     ftps_state        = "FtpsOnly"
     app_command_line  = var.app_command_line
     application_stack {
-      python_version = var.python_version
+      docker_image_name   = "nginx:latest"
+      docker_registry_url = "https://index.docker.io"
     }
     health_check_path = var.health_check_path
   }
@@ -63,7 +65,10 @@ resource "azurerm_linux_web_app" "web" {
   }
 }
 
+# ------------------------------------------------------------------------------------------------------
+# Deploy app service virtual network swift connection
+# ------------------------------------------------------------------------------------------------------
 resource "azurerm_app_service_virtual_network_swift_connection" "example" {
-  app_service_id = var.subnet_id
-  subnet_id      = azurerm_linux_web_app.web.id
+  app_service_id = azurerm_linux_web_app.app.id
+  subnet_id      = var.subnet_id
 }
