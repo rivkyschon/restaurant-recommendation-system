@@ -85,4 +85,4 @@ Logging and monitoring are enabled through Application Insights.
 
 The CI/CD pipeline is configured using Azure DevOps. Any code change triggers the pipeline to deploy the updated code to Azure.
 
-### Feel free to modify the content according to your specific project details and requirements.
+Feel free to modify the content according to your specific project details and requirements.
