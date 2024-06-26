@@ -2,6 +2,8 @@
 
 This project is a cloud-native restaurant recommendation system deployed on Azure. The system manages a list of restaurants and their properties (e.g., address, style, vegetarian options, opening hours, deliveries, etc.). It provides an API to query the list based on specific criteria and returns a recommendation for a restaurant that meets the criteria, including checking if it is open at the time of the request.
 
+![image](https://github.com/rivkyschon/restaurant-recommendation-system/assets/113901370/6764fd3c-2b38-47d3-9cea-b9fd172fdbfa)
+
 ## Table of Contents
 - [Features](#features)
 - [Architecture](#architecture)
