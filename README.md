@@ -13,8 +13,6 @@ This project is a cloud-native restaurant recommendation system deployed on Azur
 - [Usage](#usage)
 - [Security Considerations](#security-considerations)
 - [CI/CD Pipeline](#cicd-pipeline)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Features
 - Manage a list of restaurants with various properties.
