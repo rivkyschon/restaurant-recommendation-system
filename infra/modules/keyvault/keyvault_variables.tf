@@ -44,3 +44,8 @@ variable "subnet_id" {
   description = "The ID of the subnet for the private endpoint"
   type        = string
 }
+
+variable "subnets" {
+  description = "A list of subnets to be added to the keyvault access policies"
+  type        = list(string)
+}

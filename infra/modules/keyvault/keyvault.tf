@@ -34,12 +34,11 @@ resource "azurerm_key_vault" "kv" {
 
   tags = var.tags
 
-  # network_acls {
-  #   default_action             = "Deny"
-  #   bypass                     = "AzureServices"
-  #   ip_rules                   = ["192.117.165.7"]
-  #   virtual_network_subnet_ids = [var.subnet_id]
-  # }
+  network_acls {
+    default_action             = "Deny"
+    bypass                     = "AzureServices"
+    virtual_network_subnet_ids = var.subnets
+  }
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -52,8 +51,8 @@ resource "azurerm_key_vault_access_policy" "app" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.access_policy_object_ids[count.index]
 
-  key_permissions         = ["Get", "List", "Create", "Update", "Delete", "Import", "Backup", "Restore", "Recover", "Purge", "GetRotationPolicy"]
-  secret_permissions      = ["Get", "List", "Set", "Delete", "Backup", "Restore", "Recover", "Purge"]
+  key_permissions    = ["Get", "List", "Create", "GetRotationPolicy"]
+  secret_permissions = ["Get", "List", "Set", "Delete", "Purge"]
 }
 
 resource "azurerm_key_vault_access_policy" "user" {
@@ -62,8 +61,8 @@ resource "azurerm_key_vault_access_policy" "user" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.principal_id
 
-  secret_permissions = ["Get", "Set", "List", "Delete", "Purge"]
-  key_permissions    = ["Get", "GetRotationPolicy", "List", "Create", "Update", "Delete", "Import", "Backup", "Restore", "Recover", "Purge"]
+  secret_permissions = ["Get", "Set", "List"]
+  key_permissions    = ["Get", "GetRotationPolicy", "List", "Create"]
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -104,5 +103,4 @@ resource "azurerm_key_vault_key" "encryption_key" {
     azurerm_key_vault_access_policy.user,
     azurerm_key_vault_access_policy.app
   ]
-  # Todo: Key expiration policies (set dates or configure rotation)
 }

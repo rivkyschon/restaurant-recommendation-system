@@ -47,19 +47,20 @@ resource "azurerm_cosmosdb_account" "db" {
     failover_priority = 0
     zone_redundant    = false
   }
+  public_network_access_enabled = false
 }
 
 # ------------------------------------------------------------------------------------------------------
 # Deploy cosmos mongo db and collections
 # ------------------------------------------------------------------------------------------------------
 resource "azurerm_cosmosdb_mongo_database" "mongodb" {
-  name                = "Todo"
+  name                = "RestaurantDB"
   resource_group_name = azurerm_cosmosdb_account.db.resource_group_name
   account_name        = azurerm_cosmosdb_account.db.name
 }
 
-resource "azurerm_cosmosdb_mongo_collection" "list" {
-  name                = "TodoList"
+resource "azurerm_cosmosdb_mongo_collection" "restaurants" {
+  name                = "Restaurants"
   resource_group_name = azurerm_cosmosdb_account.db.resource_group_name
   account_name        = azurerm_cosmosdb_account.db.name
   database_name       = azurerm_cosmosdb_mongo_database.mongodb.name
@@ -72,7 +73,7 @@ resource "azurerm_cosmosdb_mongo_collection" "list" {
 }
 
 resource "azurerm_cosmosdb_mongo_collection" "item" {
-  name                = "TodoItem"
+  name                = "RequestLogs"
   resource_group_name = azurerm_cosmosdb_account.db.resource_group_name
   account_name        = azurerm_cosmosdb_account.db.name
   database_name       = azurerm_cosmosdb_mongo_database.mongodb.name
@@ -122,4 +123,30 @@ resource "azurerm_private_dns_a_record" "cosmos_db_private_dns_record" {
   resource_group_name = var.rg_name
   ttl                 = 300
   records             = [azurerm_private_endpoint.cosmosdb_private_endpoint.private_service_connection[0].private_ip_address]
+}
+
+#------------------------------------------------------------------------------------------------------
+# Deploy network security group for cosmos db
+#------------------------------------------------------------------------------------------------------
+resource "azurerm_network_security_group" "cosmosdb_nsg" {
+  name                = "cosmosdb-nsg"
+  location            = var.location
+  resource_group_name = var.rg_name
+
+  security_rule {
+    name                       = "AllowAppService"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = var.app_service_subnet_prefix
+    destination_address_prefix = "*"
+  }
+}
+
+resource "azurerm_subnet_network_security_group_association" "cosmosdb_nsg_association" {
+  subnet_id                 = var.subnet_id
+  network_security_group_id = azurerm_network_security_group.cosmosdb_nsg.id
 }

@@ -16,6 +16,7 @@ terraform.tfvars.json
 
 # Ignore directories that create dynamically
 infra/*terraform/
+infra/.terraform.lock.hcl
 # scripts/
 # modules/
 

@@ -102,6 +102,7 @@ module "keyvault" {
   tags           = azurerm_resource_group.rg.tags
   resource_token = local.resource_token
   subnet_id      = azurerm_subnet.keyvault_subnet.id
+  subnets        = [azurerm_subnet.keyvault_subnet.id]
   secrets = [
     {
       name  = local.cosmos_connection_string_key
@@ -114,13 +115,14 @@ module "keyvault" {
 # Deploy cosmos db with private endpoint
 # ------------------------------------------------------------------------------------------------------
 module "cosmos" {
-  source         = "./modules/cosmos"
-  location       = var.location
-  rg_name        = azurerm_resource_group.rg.name
-  tags           = azurerm_resource_group.rg.tags
-  resource_token = local.resource_token
-  vnet_id        = azurerm_virtual_network.main.id
-  subnet_id      = azurerm_subnet.cosmos_subnet.id
+  source                    = "./modules/cosmos"
+  location                  = var.location
+  rg_name                   = azurerm_resource_group.rg.name
+  tags                      = azurerm_resource_group.rg.tags
+  resource_token            = local.resource_token
+  vnet_id                   = azurerm_virtual_network.main.id
+  subnet_id                 = azurerm_subnet.cosmos_subnet.id
+  app_service_subnet_prefix = azurerm_subnet.app_service_subnet.address_prefixes[0]
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -151,14 +153,14 @@ module "appserviceplan" {
 # Deploy app service api
 # ------------------------------------------------------------------------------------------------------
 module "appservicepython" {
-  source         = "./modules/appservicepython"
-  location       = var.location
-  rg_name        = azurerm_resource_group.rg.name
-  resource_token = local.resource_token
-  subnet_id      = azurerm_subnet.app_service_subnet.id
-  docker_image_name = var.docker_image_name
+  source              = "./modules/appservicepython"
+  location            = var.location
+  rg_name             = azurerm_resource_group.rg.name
+  resource_token      = local.resource_token
+  subnet_id           = azurerm_subnet.app_service_subnet.id
+  docker_image_name   = var.docker_image_name
   docker_registry_url = var.docker_registry_url
-  
+
   tags               = merge(local.tags, { "azd-service-name" : "api" })
   service_name       = "api"
   appservice_plan_id = module.appserviceplan.APPSERVICE_PLAN_ID

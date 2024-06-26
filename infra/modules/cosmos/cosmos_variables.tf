@@ -28,3 +28,8 @@ variable "subnet_id" {
   type        = string
 }
 
+variable "app_service_subnet_prefix" {
+  description = "The subnet prefix for the app service subnet"
+  type        = string
+}
+
